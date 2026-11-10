@@ -51,7 +51,7 @@
         const TOTAL_WORK_HOURS = 960;
         const TOTAL_SECONDS = TOTAL_WORK_HOURS * 3600;
 
-        // Ημερομηνία έναρξης: 17 Αυγούστου 2026, 09:30:00
+        
         const START_DATE = new Date(2026, 7, 17, 9, 30, 0); 
 
         function getWorkedSeconds(now) {
@@ -59,20 +59,20 @@
 
             let workedSeconds = 0;
 
-            // Δημιουργούμε μια ημερομηνία για να διατρέξουμε τις ημέρες
+      
             let cur = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
             while (cur <= today) {
-                const dayOfWeek = cur.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+                const dayOfWeek = cur.getDay(); 
 
-                // Υπολογίζουμε μόνο τις καθημερινές (Δευτέρα - Παρασκευή)
+                
                 if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                     const shiftStart = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 9, 30, 0);
                     const shiftEnd = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 17, 30, 0);
 
                     if (cur.getTime() < today.getTime()) {
-                        // Προηγούμενη πλήρης εργάσιμη ημέρα -> 8 ώρες (28.800 δευτερόλεπτα)
+                      
                         workedSeconds += 8 * 3600;
                     } else {
                         // Σημερινή ημέρα
@@ -83,7 +83,7 @@
                         }
                     }
                 }
-                // Πάμε στην επόμενη ημέρα
+                
                 cur.setDate(cur.getDate() + 1);
             }
 
