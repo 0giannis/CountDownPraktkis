@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Αντίστροφη Μέτρηση Πρακτικής (960 Ώρες)</title>
+    <style>
+        body {
+            background-color: #C71585;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #58a6ff;
+        }
+
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            background: #161b22;
+            padding: 20px 40px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            color: #8b949e;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div id="timer">960:00:00</div>
+    <div id="status">Υπολογισμός...</div>
+
+    <script>
+        const TOTAL_WORK_HOURS = 960;
+        const TOTAL_SECONDS = TOTAL_WORK_HOURS * 3600;
+
+        // Ημερομηνία έναρξης: 17 Αυγούστου 2026, 09:30:00
+        const START_DATE = new Date(2026, 7, 17, 9, 30, 0); 
+
+        function getWorkedSeconds(now) {
+            if (now < START_DATE) return 0;
+
+            let workedSeconds = 0;
+
+            // Δημιουργούμε μια ημερομηνία για να διατρέξουμε τις ημέρες
+            let cur = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            while (cur <= today) {
+                const dayOfWeek = cur.getDay(); // 0 = Κυριακή, 6 = Σάββατο
+
+                // Υπολογίζουμε μόνο τις καθημερινές (Δευτέρα - Παρασκευή)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    const shiftStart = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 9, 30, 0);
+                    const shiftEnd = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 17, 30, 0);
+
+                    if (cur.getTime() < today.getTime()) {
+                        // Προηγούμενη πλήρης εργάσιμη ημέρα -> 8 ώρες (28.800 δευτερόλεπτα)
+                        workedSeconds += 8 * 3600;
+                    } else {
+                        // Σημερινή ημέρα
+                        if (now > shiftStart) {
+                            const effectiveEnd = now > shiftEnd ? shiftEnd : now;
+                            const diffMs = effectiveEnd - shiftStart;
+                            workedSeconds += Math.floor(diffMs / 1000);
+                        }
+                    }
+                }
+                // Πάμε στην επόμενη ημέρα
+                cur.setDate(cur.getDate() + 1);
+            }
+
+            return workedSeconds;
+        }
+
+        function isWorkTime(date) {
+            const day = date.getDay();
+            if (day === 0 || day === 6) return false;
+
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const timeInMinutes = hours * 60 + minutes;
+
+            return timeInMinutes >= (9 * 60 + 30) && timeInMinutes < (17 * 60 + 30);
+        }
+
+        function updateDisplay() {
+            const now = new Date();
+            const workedSeconds = getWorkedSeconds(now);
+            const remainingSeconds = Math.max(0, TOTAL_SECONDS - workedSeconds);
+
+            if (remainingSeconds <= 0) {
+                document.getElementById('timer').innerText = "000:00:00";
+                document.getElementById('status').innerText = " Συγχαρητήρια! Ολοκλήρωσες τις 960 ώρες πρακτικής!";
+                return;
+            }
+
+            const hrs = Math.floor(remainingSeconds / 3600);
+            const mins = Math.floor((remainingSeconds % 3600) / 60);
+            const secs = remainingSeconds % 60;
+
+            const formattedTime = 
+                String(hrs).padStart(3, '0') + ':' +
+                String(mins).padStart(2, '0') + ':' +
+                String(secs).padStart(2, '0');
+
+            document.getElementById('timer').innerText = formattedTime;
+
+            const activeNow = isWorkTime(now);
+            document.getElementById('status').innerText = activeNow 
+                ? "🟢" 
+                : "🔴";
+        }
+
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
+    </script>
+</body>
+</html>
